@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\FullStackApp.DLL\FullStackApp.DLL.csproj" />
     <ProjectReference Include="..\FullStackApp.Utils\FullStackApp.Utils.csproj" />
   </ItemGroup>

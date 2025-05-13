@@ -1,3 +1,4 @@
+﻿using FullStackApp.Api.Hubs;
 using FullStackApp.BLL.Interface;
 using FullStackApp.BLL.Service;
 using FullStackApp.Utils.MappingProfiles;
@@ -30,11 +31,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+// 👇 Add SignalR endpoint
+//app.MapHub<SchoolHub>("/schoolhub");
 app.UseHttpsRedirection();
-
+builder.Services.AddSignalR();
 app.UseAuthorization();
 
 app.MapControllers();
-
+app.MapHub<SchoolHub>("/schoolHub");
 app.Run();

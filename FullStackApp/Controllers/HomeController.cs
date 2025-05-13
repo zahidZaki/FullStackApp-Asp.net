@@ -23,12 +23,16 @@ namespace FullStackApp.Api.Controllers
         {
             var students = await _studentService.GetAllStudentsAsync();
 
+            
+           
+
             if (students == null || !students.Any())
             {
                 return NotFound("No students found.");
             }
+            return new JsonResult(new { status = "Succes ", msg = "Success", data = students });
 
-            return Ok(students);
+
         }
         [HttpGet]
         [Route("LimitedStudents")]
