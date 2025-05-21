@@ -1,163 +1,352 @@
-﻿using System;
-using System.Data.SqlClient;
+﻿using System; // .NET ka base namespace jo Console, String, etc. provide karta hai
+using System.Data.SqlClient; // SQL Server ke objects (SqlConnection, SqlCommand etc.) ke liye zaroori namespace
 
 class Program
 {
-    public static void Main(string[] args)
+    public static void Main(string[] args) // Entry point method, program yahin se start hota hai
     {
-        // SqlConnectionStringBuilder se connection string banata hai,
-        // jisme server name, database name aur authentication ki details hoti hain.
-        SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
-        builder.DataSource = "ZAHID-GUL\\SQLEXPRESS"; // SQL Server ka naam ya instance
-        builder.InitialCatalog = "SQLConnectivity";   // Database ka naam
-        builder.IntegratedSecurity = true;            // Windows Authentication use kar raha hai
+        // SQL Server ke connection string manually define ki gayi hai jisme server, database aur auth method diya gaya hai
+        string connectionString = "Server=ZAHID-GUL\\SQLEXPRESS;Database=SQLConnectivity;Integrated Security=true";
 
-        // SqlConnection object banata hai jo SQL Server se connect karega
-        using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+        // SqlConnection object create kiya gaya hai, jo SQL Server se connection banayega
+        using (SqlConnection connection = new SqlConnection(connectionString))
         {
             try
             {
-                connection.Open();  // Connection open karta hai database ke saath
+                // SQL connection open kiya ja raha hai, iske bina aage koi query nahi chal sakti
+                connection.Open();
+                Console.WriteLine("✅ Connection opened successfully.\n"); // Agar connection sahi se open ho jaye to message print kare
 
-                // SELECT query chalakar Employees table ke tamam records read kar raha hai
-                string sqlSelect = "SELECT * FROM Employees";
-                using (SqlCommand command = new SqlCommand(sqlSelect, connection))
-                {
-                    using (SqlDataReader reader = command.ExecuteReader())
-                    {
-                        while (reader.Read()) // Har record ke liye loop
-                        {
-                            // Console par Id, Name, Job print karta hai
-                            Console.WriteLine($"{reader["Id"]}, {reader["Name"]}, {reader["Job"]}");
-                        }
-                    }
-                }
+                // Existing employee records dikhane ke liye function call
+                DisplayAllEmployees(connection);
 
-                // INSERT query chalakar Employees table mein ek naya record add karta hai
-                string SqlInsert = "INSERT INTO Employees (Name, Job) VALUES ('John Doe', 'Software Engineer')";
-                using (SqlCommand command = new SqlCommand(SqlInsert, connection))
-                {
-                    int rowsAffected = command.ExecuteNonQuery(); // ExecuteNonQuery: insert/update/delete ke liye
-                    Console.WriteLine($"{rowsAffected} row(s) inserted.");  // Kitni rows insert hui wo batata hai
-                }
+                // Naya employee insert karne ke liye InsertQuery function call, dynamic name aur job ke sath
+                InsertQuery(connection, "Ali Khan", "Software Engineer");
 
-                // UPDATE query se John Doe ke Job ko update kar raha hai
-                string sqlUpdate = "UPDATE Employees SET Job = 'Senior Software Engineer' WHERE Name = 'John Doe'";
-                using (SqlCommand command = new SqlCommand(sqlUpdate, connection))
-                {
-                    int rowsAffected = command.ExecuteNonQuery();
-                    Console.WriteLine($"{rowsAffected} row(s) updated.");
-                }
+                // Insert kiye gaye employee ka job update karne ke liye function call
+                UpdateEmployeeJob(connection, "Ali Khan", "Senior Developer");
 
-                // DELETE query se John Doe ka record delete kar raha hai
-                string sqlDelete = "DELETE FROM Employees WHERE Name = 'John Doe'";
-                using (SqlCommand command = new SqlCommand(sqlDelete, connection))
-                {
-                    int rowsAffected = command.ExecuteNonQuery();
-                    Console.WriteLine($"{rowsAffected} row(s) deleted.");
-                }
+                // ID = 1 wale employee ko delete karne ke liye function call
+                DeleteEmployeeById(connection, 1);
 
-                // Phir se SELECT query chalakar Employees ke records dikhata hai
-                string sqlSelectAfter = "SELECT * FROM Employees";
-                using (SqlCommand command = new SqlCommand(sqlSelectAfter, connection))
-                {
-                    using (SqlDataReader reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            Console.WriteLine($"{reader["Id"]}, {reader["Name"]}, {reader["Job"]}");
-                        }
-                    }
-                }
+                // Dubara se sabhi employees ko SELECT karne ke liye function call
+                SelectQuery(connection);
 
-                // COUNT aggregate function se total employees ki count nikalta hai
-                string sqlSelectCount = "SELECT COUNT(*) FROM Employees";
-                using (SqlCommand command = new SqlCommand(sqlSelectCount, connection))
-                {
-                    int count = (int)command.ExecuteScalar(); // ExecuteScalar: single value return karta hai
-                    Console.WriteLine($"Total number of employees: {count}");
-                }
+                // Total employees ki count nikalne ke liye function call
+                ShowEmployeeCount(connection);
 
-                // MAX aggregate function se maximum salary nikalta hai
-                string sqlSelectMax = "SELECT MAX(Salary) FROM Employees";
-                using (SqlCommand command = new SqlCommand(sqlSelectMax, connection))
-                {
-                    decimal maxSalary = (decimal)command.ExecuteScalar();
-                    Console.WriteLine($"Maximum salary: {maxSalary}");
-                }
+                // Sabse zyada salary wale employee ki salary dikhane ke liye
+                ShowMaxSalary(connection);
 
-                // MIN aggregate function se minimum salary nikalta hai
-                string sqlSelectMin = "SELECT MIN(Salary) FROM Employees";
-                using (SqlCommand command = new SqlCommand(sqlSelectMin, connection))
-                {
-                    decimal minSalary = (decimal)command.ExecuteScalar();
-                    Console.WriteLine($"Minimum salary: {minSalary}");
-                }
+                // Sabse kam salary wale employee ki salary dikhane ke liye
+                ShowMinSalary(connection);
 
-                // AVG aggregate function se average salary nikalta hai
-                string sqlSelectAvg = "SELECT AVG(Salary) FROM Employees";
-                using (SqlCommand command = new SqlCommand(sqlSelectAvg, connection))
-                {
-                    decimal avgSalary = (decimal)command.ExecuteScalar();
-                    Console.WriteLine($"Average salary: {avgSalary}");
-                }
+                // Average salary nikalne ke liye
+                ShowAvgSalary(connection);
 
-                // SUM aggregate function se total salary ka sum nikalta hai
-                string sqlSelectSum = "SELECT SUM(Salary) FROM Employees";
-                using (SqlCommand command = new SqlCommand(sqlSelectSum, connection))
-                {
-                    decimal totalSalary = (decimal)command.ExecuteScalar();
-                    Console.WriteLine($"Total salary: {totalSalary}");
-                }
+                // Total salary ka sum nikalne ke liye
+                ShowTotalSalary(connection);
 
-                // GROUP BY se job ke mutabiq employees ki count nikalta hai
-                string sqlSelectGroupBy = "SELECT Job, COUNT(*) FROM Employees GROUP BY Job";
-                using (SqlCommand command = new SqlCommand(sqlSelectGroupBy, connection))
-                {
-                    using (SqlDataReader reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            // Har job title aur us job ke employees ki count print karta hai
-                            Console.WriteLine($"{reader["Job"]}, {reader[1]}");
-                        }
-                    }
-                }
+                // Har job title ke hisaab se employees ki count dikhane ke liye
+                ShowEmployeeCountByJob(connection);
 
-                // JOIN query se Employees aur Departments table ko join karta hai, taake department name bhi mile
-                string sqlSelectJoin = "SELECT e.Name, d.DepartmentName FROM Employees e JOIN Departments d ON e.DepartmentId = d.Id";
-                using (SqlCommand command = new SqlCommand(sqlSelectJoin, connection))
-                {
-                    using (SqlDataReader reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            // Employee ka naam aur uska department name print karta hai
-                            Console.WriteLine($"{reader["Name"]}, {reader["DepartmentName"]}");
-                        }
-                    }
-                }
+                // Employees ko unke departments ke saath dikhane ke liye JOIN query ka function call
+                ShowEmployeesWithDepartments(connection);
 
-                // Transaction ka example: ek transaction mein insert kar raha hai
-                string sqlSelectTransaction = "BEGIN TRANSACTION; INSERT INTO Employees (Name, Job) VALUES ('Jane Doe', 'Project Manager'); COMMIT;";
-                using (SqlCommand command = new SqlCommand(sqlSelectTransaction, connection))
-                {
-                    int rowsAffected = command.ExecuteNonQuery();
-                    Console.WriteLine($"{rowsAffected} row(s) inserted in transaction.");
-                }
+                // Transaction ke through safe insert karne ka function call
+                InsertEmployeeWithTransaction(connection, "Sara Ahmed", "Project Manager");
 
-                Console.WriteLine("Connection successful!");
+                // Jab sab kuch successfully complete ho jaye to success message print kare
+                Console.WriteLine("\n🎉 All operations completed successfully!");
             }
-            catch (SqlException ex)
+            catch (SqlException ex) // Agar koi SQL error aaye to is block mein catch hoga
             {
-                // Agar koi SQL error aaye to woh catch block mein aayega
-                Console.WriteLine("Error: " + ex.Message);
+                Console.WriteLine("❌ SQL Error: " + ex.Message); // Error message print kare
             }
             finally
             {
-                // Chahe error aaye ya na aaye, connection ko close karna zaroori hai
+                // Hamesha, chahe error aaye ya na aaye, SQL connection ko close karna chahiye
                 connection.Close();
-                Console.WriteLine("Connection closed.");
+                Console.WriteLine("🔒 Connection closed."); // Connection band hone ka message
+            }
+        }
+
+
+
+
+        // ✅ SELECT query: Tamam employee records fetch karta hai
+        static void SelectQuery(SqlConnection connection)
+        {
+            try
+            {
+                // Query define karte hain
+                string sqlSelect = "SELECT * FROM Employees";
+
+                // SqlCommand banate hain query aur connection ke sath
+                using (SqlCommand command = new SqlCommand(sqlSelect, connection))
+                {
+                    // Reader object banate hain jo records ko line by line read karega
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read()) // Jab tak records milte rahen, loop chalayen
+                        {
+                            // Console par Id, Name, Job display karte hain
+                            Console.WriteLine($"{reader["Id"]}, {reader["Name"]}, {reader["Job"]}");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("❌ Error in SelectQuery: " + ex.Message);
+            }
+        }
+
+        // ✅ INSERT query: Naya employee record insert karta hai
+        static void InsertQuery(SqlConnection connection, string name, string job)
+        {
+            try
+            {
+                string SqlInsert = "INSERT INTO Employees (Name, Job) VALUES (@Name, @Job)"; // Query define karte hain
+
+                using (SqlCommand command = new SqlCommand(SqlInsert, connection)) // Command object banate hain
+                {
+                    command.Parameters.AddWithValue("@Name", name); // Name parameter assign karte hain
+                    command.Parameters.AddWithValue("@Job", job);   // Job parameter assign karte hain
+
+                    int rowsAffected = command.ExecuteNonQuery(); // Query execute karte hain aur rows count nikalte hain
+                    Console.WriteLine($"{rowsAffected} row(s) inserted."); // Console par result show karte hain
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("❌ Error in InsertQuery: " + ex.Message);
+            }
+        }
+
+        // ✅ UPDATE query: Employee ka job update karta hai name ke basis par
+        static void UpdateEmployeeJob(SqlConnection connection, string name, string newJob)
+        {
+            try
+            {
+                string sqlUpdate = "UPDATE Employees SET Job = @Job WHERE Name = @Name"; // Query define karte hain
+
+                using (SqlCommand command = new SqlCommand(sqlUpdate, connection))
+                {
+                    command.Parameters.AddWithValue("@Job", newJob);   // Naya job assign karte hain
+                    command.Parameters.AddWithValue("@Name", name);   // Name ke basis par record select hota hai
+
+                    int rowsAffected = command.ExecuteNonQuery(); // Query execute karte hain
+                    Console.WriteLine($"{rowsAffected} row(s) updated.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("❌ Error in UpdateEmployeeJob: " + ex.Message);
+            }
+        }
+
+        // ✅ DELETE query: ID ke basis par employee delete karta hai
+        static void DeleteEmployeeById(SqlConnection connection, int Id)
+        {
+            try
+            {
+                string sqlDelete = "DELETE FROM Employees WHERE Id = @Id"; // Query define
+
+                using (SqlCommand command = new SqlCommand(sqlDelete, connection))
+                {
+                    command.Parameters.AddWithValue("@Id", Id); // ID parameter assign karte hain
+                    int rowsAffected = command.ExecuteNonQuery(); // Execute karte hain
+                    Console.WriteLine($"{rowsAffected} row(s) deleted.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("❌ Error in DeleteEmployeeById: " + ex.Message);
+            }
+        }
+
+        // ✅ SELECT * for display: Tamam employee data dikhata hai
+        static void DisplayAllEmployees(SqlConnection connection)
+        {
+            try
+            {
+                string sqlSelect = "SELECT * FROM Employees";
+
+                using (SqlCommand command = new SqlCommand(sqlSelect, connection))
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    Console.WriteLine("\n📋 Employee List:");
+                    while (reader.Read())
+                    {
+                        Console.WriteLine($"{reader["Id"]}, {reader["Name"]}, {reader["Job"]}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("❌ Error in DisplayAllEmployees: " + ex.Message);
+            }
+        }
+
+        // ✅ COUNT aggregate function: Total employees count karta hai
+        static void ShowEmployeeCount(SqlConnection connection)
+        {
+            try
+            {
+                string sql = "SELECT COUNT(*) FROM Employees";
+                using (SqlCommand command = new SqlCommand(sql, connection))
+                {
+                    int count = (int)command.ExecuteScalar(); // Single value return hoti hai
+                    Console.WriteLine($"\n👥 Total number of employees: {count}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("❌ Error in ShowEmployeeCount: " + ex.Message);
+            }
+        }
+
+        // ✅ MAX aggregate: Sabse zyada salary show karta hai
+        static void ShowMaxSalary(SqlConnection connection)
+        {
+            try
+            {
+                string sql = "SELECT MAX(Salary) FROM Employees";
+                using (SqlCommand command = new SqlCommand(sql, connection))
+                {
+                    decimal maxSalary = (decimal)command.ExecuteScalar();
+                    Console.WriteLine($"💰 Maximum salary: {maxSalary}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("❌ Error in ShowMaxSalary: " + ex.Message);
+            }
+        }
+
+        // ✅ MIN aggregate: Sabse kam salary
+        static void ShowMinSalary(SqlConnection connection)
+        {
+            try
+            {
+                string sql = "SELECT MIN(Salary) FROM Employees";
+                using (SqlCommand command = new SqlCommand(sql, connection))
+                {
+                    decimal minSalary = (decimal)command.ExecuteScalar();
+                    Console.WriteLine($"💸 Minimum salary: {minSalary}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("❌ Error in ShowMinSalary: " + ex.Message);
+            }
+        }
+
+        // ✅ AVG salary: Average salary return karta hai
+        static void ShowAvgSalary(SqlConnection connection)
+        {
+            try
+            {
+                string sql = "SELECT AVG(Salary) FROM Employees";
+                using (SqlCommand command = new SqlCommand(sql, connection))
+                {
+                    decimal avgSalary = (decimal)command.ExecuteScalar();
+                    Console.WriteLine($"📊 Average salary: {avgSalary}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("❌ Error in ShowAvgSalary: " + ex.Message);
+            }
+        }
+
+        // ✅ SUM salary: Total salary ka sum karta hai
+        static void ShowTotalSalary(SqlConnection connection)
+        {
+            try
+            {
+                string sql = "SELECT SUM(Salary) FROM Employees";
+                using (SqlCommand command = new SqlCommand(sql, connection))
+                {
+                    decimal totalSalary = (decimal)command.ExecuteScalar();
+                    Console.WriteLine($"🧾 Total salary: {totalSalary}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("❌ Error in ShowTotalSalary: " + ex.Message);
+            }
+        }
+
+        // ✅ GROUP BY Job: Job ke mutabiq employee count karta hai
+        static void ShowEmployeeCountByJob(SqlConnection connection)
+        {
+            try
+            {
+                string sql = "SELECT Job, COUNT(*) AS Count FROM Employees GROUP BY Job";
+                using (SqlCommand command = new SqlCommand(sql, connection))
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    Console.WriteLine("\n🧑‍💼 Employees by Job:");
+                    while (reader.Read())
+                    {
+                        Console.WriteLine($"{reader["Job"]}: {reader["Count"]}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("❌ Error in ShowEmployeeCountByJob: " + ex.Message);
+            }
+        }
+
+        // ✅ JOIN: Employees aur unke department names show karta hai
+        static void ShowEmployeesWithDepartments(SqlConnection connection)
+        {
+            try
+            {
+                string sql = @"SELECT e.Name, d.DepartmentName FROM Employees e JOIN Departments d ON e.DepartmentId = d.Id";
+
+                using (SqlCommand command = new SqlCommand(sql, connection))
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    Console.WriteLine("\n🏢 Employee with Department:");
+                    while (reader.Read())
+                    {
+                        Console.WriteLine($"{reader["Name"]} — {reader["DepartmentName"]}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("❌ Error in ShowEmployeesWithDepartments: " + ex.Message);
+            }
+        }
+
+        // ✅ Transaction: Secure insert karta hai jahan ya toh poora insert ho ya kuch bhi nahi ho
+        static void InsertEmployeeWithTransaction(SqlConnection connection, string name, string job)
+        {
+            SqlTransaction transaction = connection.BeginTransaction(); // Transaction start karte hain
+
+            try
+            {
+                string sql = "INSERT INTO Employees (Name, Job) VALUES (@Name, @Job)";
+                using (SqlCommand command = new SqlCommand(sql, connection, transaction))
+                {
+                    command.Parameters.AddWithValue("@Name", name);
+                    command.Parameters.AddWithValue("@Job", job);
+
+                    int rowsAffected = command.ExecuteNonQuery(); // Insert hota hai
+                    transaction.Commit(); // Agar successful ho toh commit karte hain
+
+                    Console.WriteLine($"✅ {rowsAffected} row(s) inserted in transaction.");
+                }
+            }
+            catch (Exception ex)
+            {
+                transaction.Rollback(); // Agar koi error aaye toh transaction rollback hoti hai
+                Console.WriteLine("❌ Transaction failed: " + ex.Message);
             }
         }
     }
