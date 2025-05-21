@@ -47,6 +47,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenericsLearing", "Generics
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQLConnectivityLearning", "SQLConnectivityLearning\SQLConnectivityLearning.csproj", "{20133F78-9D7A-4A34-9956-63076EA0E38C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Extension", "Extension\Extension.csproj", "{A118752C-3FE6-41B4-86A2-A653FC001E98}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -117,6 +119,10 @@ Global
 		{20133F78-9D7A-4A34-9956-63076EA0E38C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{20133F78-9D7A-4A34-9956-63076EA0E38C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{20133F78-9D7A-4A34-9956-63076EA0E38C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A118752C-3FE6-41B4-86A2-A653FC001E98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A118752C-3FE6-41B4-86A2-A653FC001E98}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A118752C-3FE6-41B4-86A2-A653FC001E98}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A118752C-3FE6-41B4-86A2-A653FC001E98}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
