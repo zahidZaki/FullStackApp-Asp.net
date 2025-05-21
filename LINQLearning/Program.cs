@@ -3,10 +3,7 @@ using LINQLearning;
 
 class Program
 {
-    // ✅ Ye ek delegate define kiya gaya hai
-    // Delegate basically ek method ka reference store karne ka tariqa hota hai
-    // Tum is delegate ko kisi bhi method ko call karne ke liye use kar sakte ho bina method ka naam likhe
-    public delegate void TempDelegate();
+  
 
     static void Main(string[] args)
     {
