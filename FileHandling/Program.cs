@@ -130,19 +130,19 @@ class Program
         /*
          
         ✅ Key Concepts Recap (Roman Urdu):
-Directory.GetFiles → sari files le aata hai.
+        Directory.GetFiles → sari files le aata hai.
 
-File.Copy → file ko copy karta hai ek jagah se doosri jagah.
+        File.Copy → file ko copy karta hai ek jagah se doosri jagah.
 
-File.Move → file ko move karta hai (copy + delete original).
+        File.Move → file ko move karta hai (copy + delete original).
 
-File.WriteAllText → file mein likhta hai (overwrite karta hai).
+        File.WriteAllText → file mein likhta hai (overwrite karta hai).
 
-File.AppendAllText → existing file mein text add karta hai.
+        File.AppendAllText → existing file mein text add karta hai.
 
-File.ReadAllText → file ka data read karke string mein return karta hai.
+        File.ReadAllText → file ka data read karke string mein return karta hai.
 
-Directory.CreateDirectory → folder create karta hai agar exist nahi karta.
+        Directory.CreateDirectory → folder create karta hai agar exist nahi karta.
 
          */
 
