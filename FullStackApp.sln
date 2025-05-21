@@ -37,7 +37,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "List", "CollectionLearn\Lis
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DictionaryLean", "DictionaryLean\DictionaryLean.csproj", "{2143D081-A857-4186-9E42-D360B461F81E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DelegatesLearn", "DelegatesLearn\DelegatesLearn.csproj", "{691327FE-4EED-410E-889D-43BE9FC20333}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TypeOfDI", "DelegatesLearn\TypeOfDI.csproj", "{691327FE-4EED-410E-889D-43BE9FC20333}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LINQLearning", "LINQLearning\LINQLearning.csproj", "{7F599CBE-1DB0-4F2C-B95E-438CDDBE3202}"
 EndProject
